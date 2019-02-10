@@ -126,16 +126,24 @@
 * 函数对象
   >函数对象即一个可执行的对象，通常做法是在重载一个类的()运算符。函数对象可用来代替函数指针。
 * lambda表达式
-  > [ *捕获列表* ] ( *参数列表* ) -> *返回类型* { *函数体* }  
-  > lambda是函数对象，lambda产生的类为捕获的参数创建相应的数据成员  
+  >[ *捕获列表* ] ( *参数列表* ) -> *返回类型* { *函数体* }  
+  >lambda是函数对象，lambda产生的类为捕获的参数创建相应的数据成员  
 * std::function
   >std::function< *返回类型* ( *参数列表* ) >是一个通用函数封装模板，可以封装所有的可调用元素，例如普通函数和函数对象函数指针  
 * std::bind
-  > 
+  >std::bind用来为函数对象绑定参数，接受一个函数对象与数个待绑定的参数返回一个新的函数对象，用占位符（std::placeholders::)表示新生成的函数对象的参数。
+  >```
+  >int fun(int,int);
+  >std::function<int(int)> new_fun = std::bind(fun,1,std::placeholders::_1);
+  >```
 * 智能指针
-  >* shared_ptr
-  >* unique_ptr
-  >* weak_ptr
+  >以RAII的方式管理资源  
+  >* unique_ptr：  
+  >unique_ptr独享资源，unique_ptr不可拷贝可移动。unique_ptr对象构造时获取资源，析构时释放资源。  
+  >* shared_ptr：  
+  >shared_ptr共享资源，shared_ptr可以拷贝。每个shared_ptr都有一个引用计数，引用计数表示shared_ptr指向的资源当前被多少个shared_ptr共享，当引用计数为0时（即：没有shared_ptr共享该资源）该资源被释放。
+  >* weak_ptr：  
+  》
 * nullptr
   >NULL和nullptr的定义分别如下:  
   >```
