@@ -138,12 +138,39 @@
   >```
 * 智能指针
   >以RAII的方式管理资源  
+  >* 引用计数:  
+  >要想实现引用计数这个功能，需要在类内定义一个指针成员，指针成员指向在堆上存储的引用计数变量。  
+      1. 调用构造函数初始化对象时，将引用计数初始化为1。  
+      2. 调用拷贝构造函数初始化对象时，拷贝给定对象的计数器，并将计数器+1。  
+      3. 调用析构函数销毁对象时，将引用计数-1，当引用计数为0时，销毁共享资源。  
+      4.调用拷贝运算符时，将右值引用计数+1，将左值引用计数-1，当左值引用计数为0时，销毁共享资源。  
   >* unique_ptr：  
   >unique_ptr独享资源，unique_ptr不可拷贝可移动。unique_ptr对象构造时获取资源，析构时释放资源。  
   >* shared_ptr：  
   >shared_ptr共享资源，shared_ptr可以拷贝。每个shared_ptr都有一个引用计数，引用计数表示shared_ptr指向的资源当前被多少个shared_ptr共享，当引用计数为0时（即：没有shared_ptr共享该资源）该资源被释放。
+  >* 循环引用：  
+  >```
+  >class A
+  >{
+  >public:
+  >     shared_ptr<B> _sp_b_;     
+  >};
+  >class B
+  >{
+  >public:
+  >     shared_ptr<A> _sp_a_;     
+  >};
+  >int main()
+  >{
+  >     shared_ptr<A> sp_a(new A());
+  >     shared_ptr<B> sp_b(new B());
+  >     sp_a._sp_b_ = sp_b;
+  >     sp_b._sp_a_ = sp_a;
+  >}
+  >```
+  >当sp_a、sp_b析构时，并不会释放它们指向的资源，从而造成内存泄漏。  
   >* weak_ptr：  
-  》
+  >
 * nullptr
   >NULL和nullptr的定义分别如下:  
   >```
