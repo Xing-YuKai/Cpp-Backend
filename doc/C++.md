@@ -117,6 +117,12 @@
    >* 析构函数可以为虚函数  
    >一般情况下基类析构函数要定义为虚函数。只有在基类析构函数定义为虚函数时，调用操作符delete销毁指向对象的基类指针时，才能通过运行时多态的机制调用派生类的析构函数准确销毁数据。如果析构函数不是虚函数，调用操作符delete销毁指向对象的基类指针时会调用基类的析构函数，从而导致派生类的部分内存空间没有释放，造成内存泄漏。  
 * 构造函数与析构函数的调用顺序
+   >1.根据继承表从左到右的执行虚基类的构造函数  
+   >2.根据继承表从左到右的执行基类的构造函数  
+   >3.如果为多重继承,则先执行最底层的基类的构造函数,逐步向上的执行构造函数,最后执行直接继承的基类的构造函数  
+   >4.根据成员类的声明顺序,从上到下的执行成员类的构造函数  
+   >5.最后执行自身的构造函数  
+  >//析构函数的执行顺序与构造函数的执行顺序完全对称相反.
 * 多继承
   >多继承可以看作是单继承的扩展。所谓多继承是指派生类具有多个基类，派生类与每个基类之间的关系仍可看作是一个单继承。派生类的成员包含所有基类中的成员以及该类本身的成员。
   >```
@@ -127,20 +133,55 @@
   >```
   >* 菱形继承
   >```
-  >class A
+  >class A                                //sizeof(A) = sizeof(m) + sizeof(vptr) = 12
   >{
   >public:
-  >   int a;
+  >	int m;
+  >	void virtual fun(){}
   >};
-  >class B:public A
-  >{};
-  >class C:public A
-  >{};
-  >class D:public B,public C
-  >{};
+  >class AA : public A                    //sizeof(AA) = sizeof(m) + sizeof(vptr) = 12
+  >{
+  >public:
+  >	void virtual fun(){}
+  >};
+  >class BB : public A                    //sizeof(BB) = sizeof(m) + sizeof(vptr) = 12
+  >{
+  >public:
+  >	void virtual fun(){}
+  >};
+  >class AAA : public AA, public BB       //sizeof(AAA) = sizeof(m) + sizeof(vptr) + sizeof(m) + sizeof(vptr)= 24
+  >{
+  >public:
+  >	void virtual fun(){}
+  >};
   >```
   >此时类D中有两份类A的数据，如果使用D.a访问变量a则会造成语义不清，此时要通过作用域运算符指定访问哪一个变量a，如: D.B::a; D.C::a;  
 * 虚继承
+  >虚继承是解决C++多重继承问题的一种手段，从不同途径继承来的同一基类(菱形继承)，会在子类中存在多份拷贝。这将存在两个问题：其一，浪费存储空间；第二，存在二义性问题。  
+  >
+  >```
+  >class A                                //sizeof(A) = sizeof(m) + sizeof(vptr) = 12
+  >{
+  >public:
+  >	int m;
+  >	void virtual fun(){}
+  >};
+  >class AA : virtual public A            //sizeof(AA) = sizeof(m) + sizeof(vptr) + sizeof(vbptr)= 20
+  >{
+  >public:
+  >	void virtual fun(){}
+  >};
+  >class BB : virtual public A            //sizeof(BB) = sizeof(m) + sizeof(vptr) + sizeof(vbptr)= 20
+  >{
+  >public:
+  >	void virtual fun(){}
+  >};
+  >class AAA : public AA, public BB       //sizeof(AAA) = sizeof(m) + sizeof(vptr) + sizeof(vbptr) + sizeof(vbptr)= 28
+  >{
+  >public:
+  >	void virtual fun(){}
+  >};
+  >```
 * C++空类大小
   >在C++中空类会占一个字节，因为空类同样可以被实例化，并且每个实例都在内存中占有空间，因此，编译器会给空类隐含加上一个字节，这样空类实例化之后就会拥有内存地址。如果没有这一个字节的占位，那么空类就无法实例化，因为实例化的过程就是在内存中分配一块地址。此特殊字节仅仅是为了使空类对象在内存中占有空间，当空类被继承时，此特殊字节会被优化掉。  
 * 内存对齐  
@@ -160,7 +201,8 @@
   >* 静态数据成员：存贮在类外，进程的data段或bss段，不占用类的内存空间。  
   >* 非静态成员函数：存贮在类外，进程的text段，不占用类的内存空间。与普通函数不同之处在于，类的非静态成员函数中暗含着一个this指针，该指针指向类的对象，并通过this指针访问对象的数据成员。  
   >* 静态成员函数：存贮在类外，进程的text段，不占用类的内存空间。  
-  >* 虚函数：如果类中存在虚函数，那么类就暗含一个vptr指针，该指针占用类的内存空间并指向虚函数表，虚函数表中包含指向虚函数的指针。  
+  >* 虚函数：如果类中存在虚函数，那么类就暗含一个vptr指针，该指针占用类的内存空间并指向虚函数表，虚函数表中包含指向虚函数的指针，位于类的地址起点。  
+  >* 虚基类：如果类虚继承于基类,那么类就暗含一个vbptr指针,该指针占用类的内存空间并指向虚基类表,虚基类表中包含虚基类的数据在继承类中的偏移,位于vptr的上方(地址大于vptr)。
   >* 填充字节：编译器为了内存对齐而在类中加入填充字节，占用类的内存空间。
 # C++11
 * RAII  
