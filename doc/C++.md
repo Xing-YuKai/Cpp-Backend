@@ -95,6 +95,17 @@
   >* new 返回指定类型的指针，并且可以自动计算所需要大小。而 malloc 则必须要由我们计算字节数，并且在返回后强行转换为实际类型的指针。  
   >* malloc仅仅分配内存空间，free仅仅回收空间，不具备调用构造函数和析构函数功能。new和delete除了分配回收功能外，还会调用构造函数和析构函数。  
   >* 如果用free释放“new创建的动态对象”，那么该对象因无法执行析构函数而可能导致程序出错。如果用delete释放“malloc申请的动态内存”，结果也会导致程序出错，但是该程序的可读性很差。所以new/delete必须配对使用，malloc/free也一样。 
+* new,operator new,placement new  
+  >* operator new  
+  >声明:`void *operator new(size_t size)`  
+  >使用:`void *mem = new(sizeof(string));`  
+  >operator new负责分配size长度的内存并返回一个指向这块内存的指针。可以重载。  
+  >* placement new  
+  >使用:`string *sp = new(mem) string()`  
+  >placement new负责在给定的内存上构造一个对象。  
+  >* new  
+  >使用:`string *sp = new string()`  
+  >new为一个关键字,它先分配内存,再在这个内存上构造对象。可以理解为先执行operator new,再执行placement new。  
 * 内联函数  
   >* 普通函数的执行过程:在栈空间上定义函数的参数,保存函数的返回地址,执行函数体的代码,执行完毕后在根据返回地址返回到原来的执行位置。  
   >* 普通函数都会在text段对应着一段代码,每次调用函数时都要执行这个代码段。而內联函数每次被调用时都会将代码段直接就地展开。
@@ -329,3 +340,5 @@
   >void fun_NULL(int);
   >void fun_nullptr(int *);
   >```
+* emplace_back()  
+  >emplace_back与push_back()的主要差异在，emplace_back使用可变参数模版。例如我们的容器内存储的对象类型为A，构造A的参数为int,int,int。当我们调用push_back({1,2,3})时，我们先执行依次构造函数生成一个临时对象，再调用移动构造函数生成一个对象。而对于emplace_back由于可以接收多个参数,那么就只需要调用一次构造函数。
