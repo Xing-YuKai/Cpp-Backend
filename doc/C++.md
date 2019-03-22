@@ -1,4 +1,7 @@
 # 语言基础
+* 声明和定义  
+  > 变量的定义（definition）用于为变量分配存储空间，还可以为变量指定初始值。在程序中，变量有且仅有一个定义。  
+  >声明（declaration）用于向程序表明变量的类型和名字。定义也是声明：当定义变量的时候我们声明了它的类型和名字。可以通过使用extern声明变量名而不定义它。不定义变量的声明包括对象名、对象类型和对象类型前的关键字extern。  
 * vector扩容
   >* 为什么成倍增长  
    >假设倍增因子为m，当我们向vector中push_back n次时，总共经过logm(n)次扩容，每次扩容拷贝m^i个元素，则共拷贝约nm/m-1次元素，则总体时间复杂度依旧为O(n)  
@@ -95,6 +98,21 @@
   >* new 返回指定类型的指针，并且可以自动计算所需要大小。而 malloc 则必须要由我们计算字节数，并且在返回后强行转换为实际类型的指针。  
   >* malloc仅仅分配内存空间，free仅仅回收空间，不具备调用构造函数和析构函数功能。new和delete除了分配回收功能外，还会调用构造函数和析构函数。  
   >* 如果用free释放“new创建的动态对象”，那么该对象因无法执行析构函数而可能导致程序出错。如果用delete释放“malloc申请的动态内存”，结果也会导致程序出错，但是该程序的可读性很差。所以new/delete必须配对使用，malloc/free也一样。 
+* delete与delete[]  
+>```
+>  class A
+>   {
+>   private:
+>      char *m_cBuffer;
+>      int m_nLen;
+>   public:
+>      A(){ m_cBuffer = new char[m_nLen]; }
+>      ~A() { delete [] m_cBuffer; }
+>   };
+>   A *a = new A[10];
+>   delete a;         //仅释放了a指针指向的全部内存空间 但是只调用了a[0]对象的析构函数 剩下的从a[1]到a[9]这9个用户自行分配的m_cBuffer对应内存空间将不能释放 从而造成内存泄漏
+>   delete [] a;      //调用使用类对象的析构函数释放用户自己分配内存空间并且   释放了a指针指向的全部内存空间
+>```
 * new,operator new,placement new  
   >* operator new  
   >声明:`void *operator new(size_t size)`  
