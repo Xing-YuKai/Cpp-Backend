@@ -1,7 +1,11 @@
-* tcpdump
-* netstat
-* GCC
-    http://c.biancheng.net/view/2382.html
+* tcpdump  
+https://www.cnblogs.com/f-ck-need-u/p/7064286.html
+* netstat  
+https://www.cnblogs.com/xieshengsen/p/6618993.html
+* GCC  
+http://c.biancheng.net/view/2382.html
+* grep  
+https://www.cnblogs.com/kongzhongqijing/articles/4462793.html  
 * GDB
 * CMake
   
